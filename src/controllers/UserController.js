@@ -1,70 +1,89 @@
+// controllers/userController.js
 const User = require('../models/User');
+const bcrypt = require('bcryptjs');
 
-// GET all users
-exports.getUsers = async (req, res) => {
+// ✅ Créer un utilisateur (Employé, Étudiant ou Fournisseur)
+exports.createUser = async (req, res) => {
+  try {
+    const {
+      nom, prenom, email, motDePasse, role,
+      matricule, departement, roleEmploye,
+      numeroEtudiant, filiere, niveauEtude, maxEmprunts,
+      nomEntreprise, siret, adresseEntreprise, contactPrincipal
+    } = req.body;
+
+    // Vérifie que le role est valide
+    if (!['employe', 'etudiant', 'supplier'].includes(role)) {
+      return res.status(400).json({ message: 'Role invalide.' });
+    }
+
+    // Hash du mot de passe
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(motDePasse, salt);
+
+    const user = new User({
+      nom, prenom, email, motDePasse: hashedPassword, role,
+      matricule, departement, roleEmploye,
+      numeroEtudiant, filiere, niveauEtude, maxEmprunts,
+      nomEntreprise, siret, adresseEntreprise, contactPrincipal
+    });
+
+    await user.save();
+    res.status(201).json({ message: 'Utilisateur créé avec succès.', user });
+
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+};
+
+// ✅ Lire tous les utilisateurs
+exports.getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-// GET single user by ID
+// ✅ Lire un utilisateur par ID
 exports.getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
     res.json(user);
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-// CREATE new user
-exports.createUser = async (req, res) => {
-  const { name, prenom, email, password } = req.body;
-  try {
-    const user = new User({
-      name,
-      prenom,
-      email,
-      password
-    });
-    await user.save();
-    res.status(201).json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
-  }
-};
-
-// UPDATE user
+// ✅ Mettre à jour un utilisateur
 exports.updateUser = async (req, res) => {
   try {
-    const user = await User.findById(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
+    const updates = req.body;
 
-    const { name, prenom, email, password, statut } = req.body;
-    if (name) user.name = name;
-    if (prenom) user.prenom = prenom;
-    if (email) user.email = email;
-    if (password) user.password = password;
-    if (statut) user.statut = statut;
+    if (updates.motDePasse) {
+      const salt = await bcrypt.genSalt(10);
+      updates.motDePasse = await bcrypt.hash(updates.motDePasse, salt);
+    }
 
-    await user.save();
-    res.json(user);
-  } catch (err) {
-    res.status(400).json({ message: err.message });
+    const user = await User.findByIdAndUpdate(req.params.id, updates, { new: true });
+
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+
+    res.json({ message: 'Utilisateur mis à jour.', user });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };
 
-// DELETE user
+// ✅ Supprimer un utilisateur
 exports.deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
-    if (!user) return res.status(404).json({ message: 'User not found' });
-    res.json({ message: 'User deleted' });
-  } catch (err) {
-    res.status(500).json({ message: err.message });
+    if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
+    res.json({ message: 'Utilisateur supprimé.' });
+  } catch (error) {
+    res.status(500).json({ message: error.message });
   }
 };

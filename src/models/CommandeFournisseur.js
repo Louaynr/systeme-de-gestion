@@ -12,12 +12,12 @@ const commandeFournisseurSchema = mongoose.Schema({
   },
   fournisseurId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Fournisseur',
+    ref: 'User', // ✅ réfère User où role = 'supplier'
     required: true
   },
   employeId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Employe',
+    ref: 'User', // ✅ réfère User où role = 'employe'
     required: true
   },
   montantTotal: {

@@ -8,16 +8,11 @@ const categorieSchema = mongoose.Schema({
   },
   description: {
     type: String
-  }
-,
-  idCategorie:{
-    type: mongoose.Schema.Types.ObjectId,
-    required: true
   },
   codeClassification: {
     type: String,
     required: true
-}
+  }
 }, {
   timestamps: true
 });
