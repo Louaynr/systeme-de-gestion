@@ -2,8 +2,7 @@
 const User = require('../models/User');
 const bcrypt = require('bcryptjs');
 
-// ✅ Créer un utilisateur (Employé, Étudiant ou Fournisseur)
-exports.createUser = async (req, res) => {
+const createUser = async (req, res) => {
   try {
     const {
       nom, prenom, email, motDePasse, role,
@@ -12,7 +11,7 @@ exports.createUser = async (req, res) => {
       nomEntreprise, siret, adresseEntreprise, contactPrincipal
     } = req.body;
 
-    // Vérifie que le role est valide
+    // Vérifie que le rôle est valide
     if (!['employe', 'etudiant', 'supplier'].includes(role)) {
       return res.status(400).json({ message: 'Role invalide.' });
     }
@@ -36,8 +35,7 @@ exports.createUser = async (req, res) => {
   }
 };
 
-// ✅ Lire tous les utilisateurs
-exports.getAllUsers = async (req, res) => {
+const getAllUsers = async (req, res) => {
   try {
     const users = await User.find();
     res.json(users);
@@ -46,8 +44,7 @@ exports.getAllUsers = async (req, res) => {
   }
 };
 
-// ✅ Lire un utilisateur par ID
-exports.getUserById = async (req, res) => {
+const getUserById = async (req, res) => {
   try {
     const user = await User.findById(req.params.id);
     if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
@@ -57,8 +54,7 @@ exports.getUserById = async (req, res) => {
   }
 };
 
-// ✅ Mettre à jour un utilisateur
-exports.updateUser = async (req, res) => {
+const updateUser = async (req, res) => {
   try {
     const updates = req.body;
 
@@ -77,8 +73,7 @@ exports.updateUser = async (req, res) => {
   }
 };
 
-// ✅ Supprimer un utilisateur
-exports.deleteUser = async (req, res) => {
+const deleteUser = async (req, res) => {
   try {
     const user = await User.findByIdAndDelete(req.params.id);
     if (!user) return res.status(404).json({ message: 'Utilisateur non trouvé.' });
@@ -86,4 +81,12 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+module.exports = {
+  createUser,
+  getAllUsers,
+  getUserById,
+  updateUser,
+  deleteUser
 };

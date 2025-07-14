@@ -1,8 +1,7 @@
 // controllers/categorieController.js
 const Categorie = require('../models/Categorie');
 
-// ➕ Créer une catégorie
-exports.createCategorie = async (req, res) => {
+const createCategorie = async (req, res) => {
   try {
     const { nom, description, codeClassification } = req.body;
 
@@ -19,8 +18,7 @@ exports.createCategorie = async (req, res) => {
   }
 };
 
-// 📄 Lire toutes les catégories
-exports.getAllCategories = async (req, res) => {
+const getAllCategories = async (req, res) => {
   try {
     const categories = await Categorie.find();
     res.json(categories);
@@ -29,8 +27,7 @@ exports.getAllCategories = async (req, res) => {
   }
 };
 
-// 📄 Lire une catégorie par ID
-exports.getCategorieById = async (req, res) => {
+const getCategorieById = async (req, res) => {
   try {
     const categorie = await Categorie.findById(req.params.id);
     if (!categorie) return res.status(404).json({ message: 'Catégorie non trouvée.' });
@@ -40,8 +37,7 @@ exports.getCategorieById = async (req, res) => {
   }
 };
 
-// ✏️ Mettre à jour une catégorie
-exports.updateCategorie = async (req, res) => {
+const updateCategorie = async (req, res) => {
   try {
     const updates = req.body;
     const categorie = await Categorie.findByIdAndUpdate(req.params.id, updates, { new: true });
@@ -54,8 +50,7 @@ exports.updateCategorie = async (req, res) => {
   }
 };
 
-// 🗑️ Supprimer une catégorie
-exports.deleteCategorie = async (req, res) => {
+const deleteCategorie = async (req, res) => {
   try {
     const categorie = await Categorie.findByIdAndDelete(req.params.id);
     if (!categorie) return res.status(404).json({ message: 'Catégorie non trouvée.' });
@@ -63,4 +58,13 @@ exports.deleteCategorie = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// ✅ Export as an object
+module.exports = {
+  createCategorie,
+  getAllCategories,
+  getCategorieById,
+  updateCategorie,
+  deleteCategorie
 };

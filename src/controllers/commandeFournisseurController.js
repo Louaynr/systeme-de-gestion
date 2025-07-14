@@ -1,8 +1,7 @@
 // controllers/commandeFournisseurController.js
 const CommandeFournisseur = require('../models/CommandeFournisseur');
 
-// ➕ Créer une commande fournisseur
-exports.createCommande = async (req, res) => {
+const createCommande = async (req, res) => {
   try {
     const { fournisseurId, employeId, montantTotal, statut } = req.body;
 
@@ -20,8 +19,7 @@ exports.createCommande = async (req, res) => {
   }
 };
 
-// 📄 Lire toutes les commandes
-exports.getAllCommandes = async (req, res) => {
+const getAllCommandes = async (req, res) => {
   try {
     const commandes = await CommandeFournisseur.find()
       .populate('fournisseurId employeId');
@@ -31,8 +29,7 @@ exports.getAllCommandes = async (req, res) => {
   }
 };
 
-// 📄 Lire une commande par ID
-exports.getCommandeById = async (req, res) => {
+const getCommandeById = async (req, res) => {
   try {
     const commande = await CommandeFournisseur.findById(req.params.id)
       .populate('fournisseurId employeId');
@@ -43,8 +40,7 @@ exports.getCommandeById = async (req, res) => {
   }
 };
 
-// ✏️ Mettre à jour une commande
-exports.updateCommande = async (req, res) => {
+const updateCommande = async (req, res) => {
   try {
     const updates = req.body;
     const commande = await CommandeFournisseur.findByIdAndUpdate(req.params.id, updates, { new: true });
@@ -57,8 +53,7 @@ exports.updateCommande = async (req, res) => {
   }
 };
 
-// 🗑️ Supprimer une commande
-exports.deleteCommande = async (req, res) => {
+const deleteCommande = async (req, res) => {
   try {
     const commande = await CommandeFournisseur.findByIdAndDelete(req.params.id);
     if (!commande) return res.status(404).json({ message: 'Commande non trouvée.' });
@@ -66,4 +61,13 @@ exports.deleteCommande = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// ✅ Export all as an object
+module.exports = {
+  createCommande,
+  getAllCommandes,
+  getCommandeById,
+  updateCommande,
+  deleteCommande
 };

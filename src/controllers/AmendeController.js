@@ -1,8 +1,7 @@
 // controllers/amendeController.js
 const Amende = require('../models/Amende');
 
-// ✅ Créer une amende
-exports.createAmende = async (req, res) => {
+const createAmende = async (req, res) => {
   try {
     const { montant, motif, etudiantId, pretId, dateCreationAmende } = req.body;
 
@@ -22,8 +21,7 @@ exports.createAmende = async (req, res) => {
   }
 };
 
-// ✅ Lire toutes les amendes
-exports.getAllAmendes = async (req, res) => {
+const getAllAmendes = async (req, res) => {
   try {
     const amendes = await Amende.find().populate('etudiantId pretId');
     res.json(amendes);
@@ -32,8 +30,7 @@ exports.getAllAmendes = async (req, res) => {
   }
 };
 
-// ✅ Lire une amende par ID
-exports.getAmendeById = async (req, res) => {
+const getAmendeById = async (req, res) => {
   try {
     const amende = await Amende.findById(req.params.id).populate('etudiantId pretId');
     if (!amende) return res.status(404).json({ message: 'Amende non trouvée.' });
@@ -43,12 +40,10 @@ exports.getAmendeById = async (req, res) => {
   }
 };
 
-// ✅ Mettre à jour une amende
-exports.updateAmende = async (req, res) => {
+const updateAmende = async (req, res) => {
   try {
     const updates = req.body;
     const amende = await Amende.findByIdAndUpdate(req.params.id, updates, { new: true });
-
     if (!amende) return res.status(404).json({ message: 'Amende non trouvée.' });
     res.json({ message: 'Amende mise à jour.', amende });
   } catch (error) {
@@ -56,8 +51,7 @@ exports.updateAmende = async (req, res) => {
   }
 };
 
-// ✅ Supprimer une amende
-exports.deleteAmende = async (req, res) => {
+const deleteAmende = async (req, res) => {
   try {
     const amende = await Amende.findByIdAndDelete(req.params.id);
     if (!amende) return res.status(404).json({ message: 'Amende non trouvée.' });
@@ -65,4 +59,13 @@ exports.deleteAmende = async (req, res) => {
   } catch (error) {
     res.status(500).json({ message: error.message });
   }
+};
+
+// ✅ Export all as one object
+module.exports = {
+  createAmende,
+  getAllAmendes,
+  getAmendeById,
+  updateAmende,
+  deleteAmende
 };

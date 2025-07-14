@@ -1,11 +1,12 @@
+// models/Livre.js
 const mongoose = require('mongoose');
 
-const livreSchema = mongoose.Schema({
-    idLivre: {
-    type: mongoose.Schema.Types.ObjectId,
+const livreSchema = new mongoose.Schema({
+  isbn: {
+    type: String,
     required: true,
     unique: true
-    },
+  },
   titre: {
     type: String,
     required: true
@@ -14,25 +15,19 @@ const livreSchema = mongoose.Schema({
     type: String,
     required: true
   },
-  isbn: {
-    type: Number,
-    unique: true
+  editeur: String,
+  anneePublication: Number,
+  langue: String,
+  description: String,
+  imageCouverture: String, // URL ou chemin vers l'image
+  categorie: {
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Categorie' // FK vers le modèle Categorie
   },
-  anneePublication: {
-    type: date,
-  },
-  editeur: {
-    type: String
-  },
-  langue: {
-    type: String,
-    required: true
-  },
-  description: {
-    type: String
-  }
-}, {
-  timestamps: true
-});
+  exemplaires: [{
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Exemplaire'
+  }]
+}, { timestamps: true });
 
 module.exports = mongoose.model('Livre', livreSchema);

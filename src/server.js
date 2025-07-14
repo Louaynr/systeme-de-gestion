@@ -5,6 +5,7 @@ const userRoutes = require('./routes/userRoutes');
 const amendeRoutes = require('./routes/AmendeRoutes');
 const categorieRoutes = require('./routes/CategorieRoutes');
 const commandeRoutes = require('./routes/CommandeFournisseurRoutes');
+const livreRoutes = require('./routes/LivreRoutes');
 
 dotenv.config();
 
@@ -17,6 +18,7 @@ app.use('/api/users', userRoutes);
 app.use('/api/amendes', amendeRoutes);
 app.use('/api/categories', categorieRoutes);
 app.use('/api/commandes', commandeRoutes);
+app.use('/api/livres', livreRoutes);
 
 
 
