@@ -1,6 +1,6 @@
-const mongoose = require("mongoose")
+const mongoose = require("mongoose");
 
-const loanSchema = new mongoose.Schema(
+const pretSchema = new mongoose.Schema(
   {
     utilisateur: {
       type: mongoose.Schema.Types.ObjectId,
@@ -36,15 +36,15 @@ const loanSchema = new mongoose.Schema(
   },
   {
     timestamps: true,
-  },
-)
-
-// Set return date automatically (14 days from loan)
-loanSchema.pre("save", function (next) {
-  if (this.isNew && !this.dateRetourPrevue) {
-    this.dateRetourPrevue = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000)
   }
-  next()
-})
+);
 
-module.exports = mongoose.model("Loan", loanSchema)
+// Définir dateRetourPrevue automatiquement si non fournie
+pretSchema.pre("save", function (next) {
+  if (this.isNew && !this.dateRetourPrevue) {
+    this.dateRetourPrevue = new Date(Date.now() + 14 * 24 * 60 * 60 * 1000);
+  }
+  next();
+});
+
+module.exports = mongoose.model("Pret", pretSchema);

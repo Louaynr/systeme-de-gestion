@@ -1,77 +1,20 @@
-const express = require("express")
-const Notification = require("../models/Notification")
-const { auth } = require("../middleware/auth")
+const express = require('express');
+const router = express.Router();
+const notificationController = require('../controllers/notificationController');
 
-const router = express.Router()
+// Create notification
+router.post('/', notificationController.createNotification);
 
-// Get user notifications
-router.get("/", auth, async (req, res) => {
-  try {
-    const { page = 1, limit = 10, unreadOnly } = req.query
-    const query = { utilisateur: req.user._id }
+// Get all notifications
+router.get('/', notificationController.getAllNotifications);
 
-    if (unreadOnly === "true") {
-      query.statutNotification = "envoyée"
-    }
+// Get one notification by id
+router.get('/:id', notificationController.getNotificationById);
 
-    const notifications = await Notification.find(query)
-      .limit(limit * 1)
-      .skip((page - 1) * limit)
-      .sort({ dateEnvoi: -1 })
+// Update notification by id
+router.put('/:id', notificationController.updateNotification);
 
-    const total = await Notification.countDocuments(query)
+// Delete notification by id
+router.delete('/:id', notificationController.deleteNotification);
 
-    res.json({
-      notifications,
-      totalPages: Math.ceil(total / limit),
-      currentPage: page,
-      total,
-    })
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
-
-// Mark notification as read
-router.put("/:id/read", auth, async (req, res) => {
-  try {
-    const notification = await Notification.findById(req.params.id)
-
-    if (!notification) {
-      return res.status(404).json({ message: "Notification not found" })
-    }
-
-    if (notification.utilisateur.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ message: "Access denied" })
-    }
-
-    notification.statutNotification = "lue"
-    await notification.save()
-
-    res.json({
-      message: "Notification marked as read",
-      notification,
-    })
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
-
-// Mark all notifications as read
-router.put("/mark-all-read", auth, async (req, res) => {
-  try {
-    await Notification.updateMany(
-      {
-        utilisateur: req.user._id,
-        statutNotification: "envoyée",
-      },
-      { statutNotification: "lue" },
-    )
-
-    res.json({ message: "All notifications marked as read" })
-  } catch (error) {
-    res.status(500).json({ message: error.message })
-  }
-})
-
-module.exports = router
+module.exports = router;

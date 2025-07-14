@@ -1,73 +1,89 @@
-const mongoose = require("mongoose")
+const Pret = require("../models/Pret");
 
-const supplierOrderSchema = new mongoose.Schema(
-  {
-    fournisseur: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    employe: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "User",
-      required: true,
-    },
-    dateCommande: {
-      type: Date,
-      default: Date.now,
-    },
-    statutCommande: {
-      type: String,
-      enum: ["en attente", "en cours", "livrée", "annulée"],
-      default: "en attente",
-    },
-    dateLivraisonPrevue: {
-      type: Date,
-      required: true,
-    },
-    dateLivraisonEffective: {
-      type: Date,
-    },
-    montantTotal: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-  },
-  {
-    timestamps: true,
-  },
-)
+async function createPret(req, res) {
+  try {
+    const pret = new Pret(req.body);
+    await pret.save();
+    res.status(201).json(pret);
+  } catch (error) {
+    res.status(400).json({ message: error.message });
+  }
+}
 
-const supplierOrderLineSchema = new mongoose.Schema(
-  {
-    commandeFournisseur: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "SupplierOrder",
-      required: true,
-    },
-    livre: {
-      type: mongoose.Schema.Types.ObjectId,
-      ref: "Book",
-      required: true,
-    },
-    quantite: {
-      type: Number,
-      required: true,
-      min: 1,
-    },
-    prixUnitaire: {
-      type: Number,
-      required: true,
-      min: 0,
-    },
-  },
-  {
-    timestamps: true,
-  },
-)
+async function returnPret(req, res) {
+  try {
+    const pret = await Pret.findById(req.params.id);
+    if (!pret) {
+      return res.status(404).json({ message: "Prêt non trouvé" });
+    }
 
-const SupplierOrder = mongoose.model("SupplierOrder", supplierOrderSchema)
-const SupplierOrderLine = mongoose.model("SupplierOrderLine", supplierOrderLineSchema)
+    pret.dateRetourEffective = new Date();
+    pret.statutPret = "retourné";
+    await pret.save();
 
-module.exports = { SupplierOrder, SupplierOrderLine }
+    res.json(pret);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function extendPret(req, res) {
+  try {
+    const pret = await Pret.findById(req.params.id);
+    if (!pret) {
+      return res.status(404).json({ message: "Prêt non trouvé" });
+    }
+
+    if (pret.statutPret !== "en cours") {
+      return res.status(400).json({ message: "Impossible de prolonger ce prêt" });
+    }
+
+    pret.dateRetourPrevue = new Date(pret.dateRetourPrevue.getTime() + 7 * 24 * 60 * 60 * 1000);
+    await pret.save();
+
+    res.json(pret);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function getUserPrets(req, res) {
+  try {
+    const { userId } = req.params;
+    const query = userId ? { utilisateur: userId } : {};
+
+    const prets = await Pret.find(query)
+      .populate("utilisateur", "nom prenom")
+      .populate("exemplaire")
+      .populate("employe", "nom prenom");
+
+    res.json(prets);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+async function getOverduePrets(req, res) {
+  try {
+    const now = new Date();
+    const overduePrets = await Pret.find({
+      statutPret: "en cours",
+      dateRetourPrevue: { $lt: now },
+    })
+      .populate("utilisateur", "nom prenom")
+      .populate("exemplaire")
+      .populate("employe", "nom prenom");
+
+    res.json(overduePrets);
+  } catch (error) {
+    res.status(500).json({ message: error.message });
+  }
+}
+
+module.exports = {
+  createPret,
+  returnPret,
+  extendPret,
+  getUserPrets,
+  getOverduePrets,
+};
