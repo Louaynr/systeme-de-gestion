@@ -4,8 +4,8 @@ const router = express.Router();
 const amendeController = require('../controllers/AmendeController');
 
 // CRUD routes
-router.post('/', amendeController.createAmende);
-router.get('/', amendeController.getAllAmendes);
+router.post('/createAmende', amendeController.createAmende);
+router.get('/getAllAmendes', amendeController.getAllAmendes);
 router.get('/:id', amendeController.getAmendeById);
 router.put('/:id', amendeController.updateAmende);
 router.delete('/:id', amendeController.deleteAmende);
