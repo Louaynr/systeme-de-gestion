@@ -61,6 +61,7 @@ const validateUser = (req, res, next) => {
   next();
 };
 
+// Keep the rest of the file unchanged
 module.exports = {
   validateLoan,
   validateReservation,

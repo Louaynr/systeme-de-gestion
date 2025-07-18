@@ -1,54 +1,66 @@
-const express = require('express');
-const router = express.Router();
 const jwt = require('jsonwebtoken');
 const User = require('../models/User');
-const
 
-
-// Authentication middleware
+// Middleware d'authentification
 const auth = async (req, res, next) => {
   try {
-    // Get token from header
-    const token = req.header('Authorization')?.replace('Bearer ', '');
-    
-    if (!token) {
+    // Récupérer le token du header Authorization
+    const authHeader = req.header('Authorization');
+    if (!authHeader || !authHeader.startsWith('Bearer ')) {
       return res.status(401).json({ message: 'Accès refusé. Token manquant.' });
     }
-    
-    // Verify token
+
+    const token = authHeader.replace('Bearer ', '').trim();
+
+    // Vérifier le token
     const decoded = jwt.verify(token, process.env.JWT_SECRET);
-    
-    // Find user
-    const user = await User.findById(decoded.userId);
-    
+
+    // Récupérer l'id utilisateur depuis le token
+    const userId = decoded.id || decoded.userId;
+
+    if (!userId) {
+      return res.status(401).json({ message: 'Token invalide.' });
+    }
+
+    // Trouver l'utilisateur dans la base de données
+    const user = await User.findById(userId);
+
     if (!user) {
       return res.status(401).json({ message: 'Utilisateur non trouvé.' });
     }
-    
+
     if (user.statut !== 'actif') {
       return res.status(401).json({ message: 'Compte utilisateur inactif ou suspendu.' });
     }
-    
-    // Add user to request object
+
+    // Ajouter l'utilisateur et token à l'objet request
     req.user = user;
     req.token = token;
+
     next();
   } catch (error) {
-    res.status(401).json({ message: 'Token invalide.' });
+    console.error('Erreur auth middleware:', error);
+    return res.status(401).json({ message: 'Token invalide.' });
   }
 };
 
-// Authorization middleware
-const authorize = (role) => {
+// Middleware d'autorisation (rôles)
+// Accepte un rôle ou un tableau de rôles
+const authorize = (roles) => {
+  // Convertir roles en tableau si c'est une chaîne
+  if (typeof roles === 'string') {
+    roles = [roles];
+  }
+
   return (req, res, next) => {
     if (!req.user) {
       return res.status(401).json({ message: 'Authentification requise.' });
     }
-    
-    if (role && req.user.role !== role) {
+
+    if (roles.length > 0 && !roles.includes(req.user.role)) {
       return res.status(403).json({ message: 'Accès refusé. Permissions insuffisantes.' });
     }
-    
+
     next();
   };
 };
