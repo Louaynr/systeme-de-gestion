@@ -1,13 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const livreController = require('../controllers/livreController');
+const { auth, authorize } = require('../middlewares/auth');
 
-// Place specific routes before dynamic ones:
-router.post('/', livreController.createLivre);
-router.get('/', livreController.getAllLivres);
-// Dynamic routes with :id must be last:
-router.get('/:id', livreController.getLivreById);
-router.put('/:id', livreController.updateLivre);
-router.delete('/:id', livreController.deleteLivre);
+router.get('/', livreController.getAllLivres);   
+router.get('/:id', livreController.getLivreById);   
+
+router.post('/', auth, authorize('employe'), livreController.createLivre);
+router.put('/:id', auth, authorize('employe'), livreController.updateLivre);
+router.delete('/:id', auth, authorize('employe'), livreController.deleteLivre);
 
 module.exports = router;

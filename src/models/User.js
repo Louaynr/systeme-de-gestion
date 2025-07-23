@@ -26,7 +26,7 @@ const userSchema = new mongoose.Schema({
   niveauEtude: String,
   maxEmprunts: Number,
 
-  // Fournisseur
+  // Supplier
   nomEntreprise: String,
   siret: String,
   adresseEntreprise: String,

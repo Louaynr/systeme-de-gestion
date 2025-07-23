@@ -1,20 +1,13 @@
 const express = require('express');
 const router = express.Router();
 const exemplaireController = require('../controllers/exemplaireController');
+const { auth, authorize } = require('../middlewares/auth');
 
-// Create exemplaire
-router.post('/', exemplaireController.createExemplaire);
-
-// Get all exemplaires
 router.get('/', exemplaireController.getAllExemplaires);
-
-// Get one exemplaire by id
 router.get('/:id', exemplaireController.getExemplaireById);
 
-// Update exemplaire by id
-router.put('/:id', exemplaireController.updateExemplaire);
-
-// Delete exemplaire by id
-router.delete('/:id', exemplaireController.deleteExemplaire);
+router.post('/', auth, authorize(['employe', 'admin']), exemplaireController.createExemplaire);
+router.put('/:id', auth, authorize(['employe', 'admin']), exemplaireController.updateExemplaire);
+router.delete('/:id', auth, authorize(['employe', 'admin']), exemplaireController.deleteExemplaire);
 
 module.exports = router;

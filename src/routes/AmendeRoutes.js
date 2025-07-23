@@ -1,13 +1,13 @@
-// routes/amendeRoutes.js
 const express = require('express');
 const router = express.Router();
-const amendeController = require('../controllers/AmendeController');
+const amendeController = require('../controllers/amendeController');
+const { auth, authorize } = require('../middlewares/auth');
 
-// CRUD routes
-router.post('/createAmende', amendeController.createAmende);
-router.get('/getAllAmendes', amendeController.getAllAmendes);
+router.get('/', amendeController.getAllAmendes);
 router.get('/:id', amendeController.getAmendeById);
-router.put('/:id', amendeController.updateAmende);
-router.delete('/:id', amendeController.deleteAmende);
+
+router.post('/', auth, authorize(['employe', 'admin']), amendeController.createAmende);
+router.put('/:id', auth, authorize(['employe', 'admin']), amendeController.updateAmende);
+router.delete('/:id', auth, authorize(['employe', 'admin']), amendeController.deleteAmende);
 
 module.exports = router;

@@ -1,26 +1,25 @@
-// routes/PretRoutes.js
+const express = require("express");
+const {
+  createPret,
+  returnPret,
+  extendPret,
+  getUserPrets,
+  getOverduePrets
+} = require("../controllers/pretController");
 
-const express = require("express")
-const { createLoan, returnLoan, extendLoan, getUserLoans, getOverdueLoans } = require("../controllers/pretController");
+const { auth, authorize } = require("../middleware/auth");
+const { validateLoan } = require("../middleware/validation");
 
-const { auth, authorize } = require("../middleware/auth")
-const { validateLoan } = require("../middleware/validation")
+const router = express.Router();
 
-const router = express.Router()
+router.post("/", auth, authorize("employe"), validateLoan, createPret);
 
-// Créer un prêt
-router.post("/", auth, authorize("employe"), validateLoan, createLoan)
+router.put("/:id/return", auth, authorize("employe"), returnPret);
 
-// Retourner un prêt
-router.put("/:id/return", auth, authorize("employe"), returnLoan)
+router.put("/:id/extend", auth, authorize("employe"), extendPret);
 
-// Prolonger un prêt
-router.put("/:id/extend", auth, extendLoan)
+router.get("/user/:userId?", auth, getUserPrets);
 
-// Obtenir les prêts d'un utilisateur
-router.get("/user/:userId?", auth, getUserLoans)
+router.get("/overdue", auth, authorize("employe"), getOverduePrets);
 
-// Obtenir les prêts en retard
-router.get("/overdue", auth, authorize("employe"), getOverdueLoans)
-
-module.exports = router
+module.exports = router;
