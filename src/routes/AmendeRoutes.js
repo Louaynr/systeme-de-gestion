@@ -1,6 +1,6 @@
 const express = require('express');
 const router = express.Router();
-const amendeController = require('../controllers/amendeController');
+const amendeController = require('../controllers/AmendeController');
 const { auth, authorize } = require('../middlewares/auth');
 
 router.get('/', amendeController.getAllAmendes);
